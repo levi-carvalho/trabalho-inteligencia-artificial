@@ -8,6 +8,8 @@ class UtilityBased(ObjectiveBased):
         self.objective = None
         self.limit = 50
         self.waiting = False
+        self.helper = None
+        self.helping = None
         
     def calc_next_target(self):
         if self.waiting:
@@ -31,6 +33,25 @@ class UtilityBased(ObjectiveBased):
                 if colleague.objective == self.objective:
                     if colleague != self:
                         self.waiting = True
+                        if math.dist(colleague.rect.center, self.rect.center) < 30:
+                            self.waiting = False
+                            
+                            sprite.holder = self
+                            self.busy = True
+                            self.returning = True
+                            self.resource = sprite
+                            self.target = self.base_pos
+                            self.target_rect.center = self.base_pos
+                            
+                            colleague.busy = True
+                            colleague.returning = True
+                            colleague.resource = sprite
+                            colleague.target = self.base_pos
+                            colleague.target_rect.center = self.base_pos
+                            
+                            
+                    break
+                            
                 else:
                     sprite.last_tried = pygame.time.get_ticks()
                     self.resource = None
