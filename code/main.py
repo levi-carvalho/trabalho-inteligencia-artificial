@@ -2,6 +2,7 @@ from settings import *
 from agents.simple_reactive import SimpleReactive
 from agents.state_based import StateBased
 from agents.objective_based import ObjectiveBased
+from agents.utility_based import UtilityBased
 from sprites import *
 from groups import AllSprites
 from resources import *
@@ -46,13 +47,15 @@ class Game():
         pygame.display.set_caption("Ablu bla blé")
         
         self.display_surface = pygame.display.get_surface()
-        self.all_sprites = AllSprites()
+       
         self.collision_sprites = pygame.sprite.Group()
+        self.utility_agents = pygame.sprite.Group()
         self.objetives = pygame.sprite.Group()
+        self.all_sprites = AllSprites()
+       
         self.clock = pygame.time.Clock()
         self.running = True
         self.create_agent = pygame.event.custom_type()
-        pygame.time.set_timer(self.create_agent, 2000)
         
         self.setup()
         
@@ -74,7 +77,7 @@ class Game():
                 Crystal(position, (self.all_sprites, self.collision_sprites, self.objetives))
             elif random() < 0.1:
                 Metal(position, (self.all_sprites, self.collision_sprites, self.objetives))
-            elif random() < 0.05:
+            elif random() < 0.02:
                 AncientBuilding(position, (self.all_sprites, self.collision_sprites, self.objetives))
             Sprite(position, image, self.all_sprites, layer=0)
                 
@@ -89,6 +92,7 @@ class Game():
         self.surfaces['state_based'] = self.load_agent_sprite_sheet(1)
         self.surfaces['objective_based'] = self.load_agent_sprite_sheet(2)
         self.surfaces['simple_reactive'] = self.load_agent_sprite_sheet(3)
+        self.surfaces['utility_based'] = self.load_agent_sprite_sheet(6)
     
     def load_agent_sprite_sheet(self, number):
         surface_path = path.join('..','dreamland','48x48',f'Char_00{number}.png')
@@ -99,9 +103,12 @@ class Game():
     def run(self):
         self.surfaces_setup()
         
-        SimpleReactive(72, self.map_center, self.surfaces['simple_reactive'], self.all_sprites, self.collision_sprites)
         StateBased(72, self.map_center, self.surfaces['state_based'], self.all_sprites, self.collision_sprites)
+        SimpleReactive(72, self.map_center, self.surfaces['simple_reactive'], self.all_sprites, self.collision_sprites)
         ObjectiveBased(72, self.map_center, self.surfaces['objective_based'], self.all_sprites, self.collision_sprites, self.objetives)
+        
+        UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
         
         while self.running:
             self.delta_time = self.clock.tick() / 1000
