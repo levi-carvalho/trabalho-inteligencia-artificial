@@ -8,6 +8,11 @@ class Resource(CollisionSprite):
         self.holders = 0
         self.cooldown_duration = 15000
         self.last_tried = -30000
+    
+    def update(self, delta_time, *args):
+        self.animate(delta_time)
+        if self.holder:
+            self.rect.midbottom = self.holder.rect.midtop
 
 class Crystal(Resource):
     def __init__(self, position, groups):
@@ -40,10 +45,6 @@ class Crystal(Resource):
         self.current_frame += uniform(0.2, 1.8) * delta_time
         self.image = self.frames[int(self.current_frame) % len(self.frames)]
         
-    def update(self, delta_time, *args):
-        self.animate(delta_time)
-        if self.holder:
-            self.rect.midbottom = self.holder.rect.midtop
 
 class Metal(Crystal):
     def __init__(self, position, groups):
