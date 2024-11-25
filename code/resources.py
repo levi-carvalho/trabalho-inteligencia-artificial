@@ -1,7 +1,15 @@
 from settings import *
 from sprites import CollisionSprite
 
-class Crystal(CollisionSprite):
+
+class Resource(CollisionSprite):
+    def __init__(self, position, surface, groups):
+        super().__init__(position, surface, groups)
+        self.holders = 0
+        self.cooldown_duration = 15000
+        self.last_tried = -30000
+
+class Crystal(Resource):
     def __init__(self, position, groups):
         
         surface = pygame.Surface((64, 64))
@@ -55,7 +63,7 @@ class AncientBuilding(Metal):
     def __init__(self, position, groups):
         super().__init__(position, groups)
         self.value = 50
-    
+        
     def load_images(self):
         images_path = path.join('..', 'fancient')
         image_path = path.join(images_path, (rd.choice(os.listdir(images_path))))
