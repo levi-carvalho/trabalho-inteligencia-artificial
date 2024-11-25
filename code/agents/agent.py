@@ -24,6 +24,7 @@ class Agent(pygame.sprite.Sprite):
         self.target = self.base_pos
         self.collision_sprites = collision_sprites
         self.layer_order = 3
+        self.limit = 20
         
     def input(self):
         keys = pygame.key.get_pressed()
@@ -39,7 +40,7 @@ class Agent(pygame.sprite.Sprite):
         
         self.rect.center = self.hitbox_rect.center
         
-    def carry(self, sprite):
+    def carry(self, sprite): #nome deveria ser deliver, parece que s´o executa quando chega na base
         if not self.busy and not sprite.holder:
             sprite.holder = self
             self.busy = True
@@ -50,7 +51,7 @@ class Agent(pygame.sprite.Sprite):
     
     def collission(self, direction):
         for sprite in self.collision_sprites:
-            if sprite.rect.colliderect(self.hitbox_rect) and sprite.value < 50:
+            if sprite.rect.colliderect(self.hitbox_rect) and sprite.value <= self.limit:
                 self.carry(sprite)
                         
         self.rect.center = self.hitbox_rect.center
