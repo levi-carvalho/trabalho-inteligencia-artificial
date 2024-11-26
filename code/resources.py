@@ -6,13 +6,19 @@ class Resource(CollisionSprite):
     def __init__(self, position, surface, groups):
         super().__init__(position, surface, groups)
         self.holders = 0
-        self.cooldown_duration = 15000
+        self.holders_list = []
+        self.cooldown_duration = 3000
         self.last_tried = -30000
     
     def update(self, delta_time, *args):
         self.animate(delta_time)
+        
+        # possivel solução pra agente carregando mais de um
+        # if not self.holder.busy:
+        #     self.holder = None
         if self.holder:
             self.rect.midbottom = self.holder.rect.midtop
+            
 
 class Crystal(Resource):
     def __init__(self, position, groups):
@@ -33,7 +39,7 @@ class Crystal(Resource):
         
         for file_name in sorted(os.listdir(folder_path), key = lambda name: int(name.split('.')[0])):
             full_path = path.join(folder_path, file_name)
-            image = pygame.image.load(full_path)
+            image = pygame.image.load(full_path).convert_alpha()
             image = pygame.transform.scale_by(image, 0.1)
             self.frames.append(image)
             
@@ -53,7 +59,7 @@ class Metal(Crystal):
     
     def load_images(self):
         image_path = path.join('..', 'mineral', 'Icon20.png')
-        self.image = pygame.image.load(image_path)
+        self.image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, (52, 52))
         self.rect = self.image.get_frect(center = self.position)
     
@@ -68,5 +74,5 @@ class AncientBuilding(Metal):
     def load_images(self):
         images_path = path.join('..', 'fancient')
         image_path = path.join(images_path, (rd.choice(os.listdir(images_path))))
-        self.image = pygame.image.load(image_path)
+        self.image = pygame.image.load(image_path).convert_alpha()
         self.rect = self.image.get_frect(midbottom = self.position)
