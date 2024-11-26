@@ -4,7 +4,8 @@ from agents.simple_reactive import SimpleReactive
 class StateBased(SimpleReactive):
     def __init__(self, size, position, sprite_sheet, groups, collision_sprites):
         super().__init__(size, position, sprite_sheet, groups, collision_sprites)
-        self.matrix = np.zeros(shape=(21,21))
+        self.matrix_size = 21
+        self.matrix = np.zeros(shape=(self.matrix_size,self.matrix_size))
         self.matrix_pos = pygame.Vector2(10,10)
         self.direction = pygame.Vector2((1,0))
         self.direction_index = 0
@@ -29,8 +30,9 @@ class StateBased(SimpleReactive):
         
         next_positions = new_direction//64 + [current_x, current_y]
         
-        if self.matrix[int(next_positions[0])][int(next_positions[1])] == 1:
-            self.direction_index -= 1
-            new_direction = self.directions[self.direction_index % 4]
+        if current_x < self.matrix_size > current_y:           
+            if self.matrix[int(next_positions[0])][int(next_positions[1])] == 1:
+                self.direction_index -= 1
+                new_direction = self.directions[self.direction_index % 4]
         
         self.target_rect = self.hitbox_rect.move(new_direction.x, new_direction.y)
