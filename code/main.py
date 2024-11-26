@@ -96,6 +96,7 @@ class Game():
         self.surfaces['objective_based'] = self.load_agent_sprite_sheet(2)
         self.surfaces['simple_reactive'] = self.load_agent_sprite_sheet(3)
         self.surfaces['utility_based'] = self.load_agent_sprite_sheet(6)
+        self.surfaces['bdi_agent'] = self.load_agent_sprite_sheet(5)
     
     def load_agent_sprite_sheet(self, number):
         surface_path = path.join('..','dreamland','48x48',f'Char_00{number}.png')
@@ -106,16 +107,16 @@ class Game():
     def run(self):
         self.surfaces_setup()
         
-        StateBased(72, self.map_center, self.surfaces['state_based'], self.all_sprites, self.collision_sprites)
-        SimpleReactive(72, self.map_center, self.surfaces['simple_reactive'], self.all_sprites, self.collision_sprites)
-        ObjectiveBased(72, self.map_center, self.surfaces['objective_based'], self.all_sprites, self.collision_sprites, self.objetives)
+        # StateBased(72, self.map_center, self.surfaces['state_based'], self.all_sprites, self.collision_sprites)
+        # SimpleReactive(72, self.map_center, self.surfaces['simple_reactive'], self.all_sprites, self.collision_sprites)
+        # ObjectiveBased(72, self.map_center, self.surfaces['objective_based'], self.all_sprites, self.collision_sprites, self.objetives)
         
-        UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
         
         while self.running:
             self.delta_time = self.clock.tick() / 1000
