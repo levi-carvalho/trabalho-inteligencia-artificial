@@ -8,15 +8,34 @@ class UtilityBased(ObjectiveBased):
         self.objective = None
         self.limit = 50
         self.waiting = False
-        self.helper = None
-        self.helping = None
-        
-    def calc_next_target(self):
-        if self.waiting:
-            return
-        
+    
+    def calc_objective(self):
         objectives = sorted(self.objectives, key = lambda objective: math.dist(objective.rect.center, self.rect.center))
         objectives = [objective for objective in objectives if (pygame.time.get_ticks() - objective.last_tried) >= objective.cooldown_duration]
+        return objectives
+    
+    def calc_next_target(self):
+        if self.waiting and self.objective:
+            print(self.waiting, "waitt", pygame.time.get_ticks(), self.rect.center)
+            print('objective = ', self.objective.groups())
+            
+            found_colleague = False
+            for colleague in self.colleagues:
+                if colleague.objective == self.objective:
+                    if colleague != self:
+                        found_colleague = True
+                        print("truou")
+                        break
+            if not found_colleague:
+                self.waiting = False
+                self.objective.last_tried = pygame.time.get_ticks()                        
+            
+            if not self.objective or len(self.objective.groups()) == 0 or self.objective.holders > 1:
+                self.waiting = False
+            
+            return
+        
+        objectives = self.calc_objective()
         
         while objectives[self.objective_index].holder:
             self.objective_index += 1
@@ -34,44 +53,15 @@ class UtilityBased(ObjectiveBased):
                     if colleague != self:
                         self.waiting = True
                         if math.dist(colleague.rect.center, self.rect.center) < 30:
+                            self.set_returning(sprite, colleague)
+                            self.set_returning(sprite, self)
                             self.waiting = False
                             
-                            sprite.holder = self
-                            self.busy = True
-                            self.returning = True
-                            self.resource = sprite
-                            self.target = self.base_pos
-                            self.target_rect.center = self.base_pos
-                            
-                            colleague.busy = True
-                            colleague.returning = True
-                            colleague.resource = sprite
-                            colleague.target = self.base_pos
-                            colleague.target_rect.center = self.base_pos
-                            
-                            
-                    break
-                            
-                else:
-                    sprite.last_tried = pygame.time.get_ticks()
-                    self.resource = None
+            if not self.waiting:
+                sprite.last_tried = pygame.time.get_ticks()
+                self.waiting = False
+                
+            
             return
         if not self.busy and not sprite.holder:
-            sprite.holder = self
-            self.busy = True
-            self.returning = True
-            self.resource = sprite
-            self.target = self.base_pos
-            self.target_rect.center = self.base_pos
-        
-# o agente cooperativo vai encontrar o bagulho grande, vai pegar todos os outros agentes cooperativos e vai mandar um agente.help_me()
-#    eles vão responder True  ou False dependendo das condições (ocupado e distância)
-# se todos os agentes responderem False o agente vai pro objetivo mais próximo
-
-## cooldown de tentativa, sei lá
-
-## holding = 0/2, 1/2, 2/2
-## holders = []
-## o item carregado vai ficar na distância média entre os dois agentes
-
-## verifica se o objetivo de algum outro agente cooperativo também é o grandão
+            self.set_returning(sprite, self)
