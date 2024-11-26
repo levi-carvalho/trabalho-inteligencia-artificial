@@ -39,16 +39,24 @@ class Agent(pygame.sprite.Sprite):
         self.collission('vertical')
         
         self.rect.center = self.hitbox_rect.center
+    
+    def set_returning(self, sprite, agent):
+        if sprite.holders > 1:
+            self.waiting = False
+            self.objective = None
+            return
+        sprite.holders += 1
+        sprite.holders_list.append(agent)
+        sprite.holder = self
+        agent.busy = True
+        agent.returning = True
+        agent.resource = sprite
+        agent.target = self.base_pos
+        agent.target_rect.center = self.base_pos
         
     def carry(self, sprite): #nome deveria ser deliver, parece que s´o executa quando chega na base
-        if not self.busy and not sprite.holder:
-            sprite.holder = self
-            self.busy = True
-            self.returning = True
-            self.resource = sprite
-            self.target = self.base_pos
-            self.target_rect.center = self.base_pos
-    
+        if not self.busy and not sprite.holder and sprite:
+            self.set_returning(sprite, self)    
     def collission(self, direction):
         for sprite in self.collision_sprites:
             if sprite.rect.colliderect(self.hitbox_rect) and sprite.value <= self.limit:
