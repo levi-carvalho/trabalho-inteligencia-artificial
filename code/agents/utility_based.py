@@ -24,6 +24,9 @@ class UtilityBased(ObjectiveBased):
                 if colleague.objective == self.objective:
                     if colleague != self:
                         found_colleague = True
+                        if found_colleague == True and colleague.waiting == True:
+                            self.waiting = False
+                            colleague.waiting = False
                         print("truou")
                         break
             if not found_colleague:
