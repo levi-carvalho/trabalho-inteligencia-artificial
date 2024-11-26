@@ -96,13 +96,111 @@ class Game():
         self.surfaces['objective_based'] = self.load_agent_sprite_sheet(2)
         self.surfaces['simple_reactive'] = self.load_agent_sprite_sheet(3)
         self.surfaces['utility_based'] = self.load_agent_sprite_sheet(6)
-    
+        self.surfaces['bdi_agent'] = self.load_agent_sprite_sheet(5)
+        
     def load_agent_sprite_sheet(self, number):
         surface_path = path.join('..','dreamland','48x48',f'Char_00{number}.png')
         surface = pygame.image.load(surface_path).convert_alpha()
         
         return surface
     
+    def test_agent(self, agent_type, duration):
+        self.surfaces_setup()
+        agent_classes = {
+            'state_based': StateBased,
+            'simple_reactive': SimpleReactive,
+            'objective_based': ObjectiveBased,
+            'utility_based': UtilityBased,
+            'bdi_agent': BDIAgent
+        }
+        
+        self.all_sprites.empty()
+        self.collision_sprites.empty()
+        self.objetives.empty()
+        self.setup()
+        
+        AgentClass = agent_classes[agent_type]
+        if agent_type in ['state_based', 'simple_reactive']:
+            AgentClass(72, self.map_center, self.surfaces[agent_type], self.all_sprites, self.collision_sprites)
+        elif agent_type in ['objective_based', 'utility_based', 'bdi_agent']:
+            AgentClass(72, self.map_center, self.surfaces[agent_type], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        
+        start_time = pygame.time.get_ticks()
+        while pygame.time.get_ticks() - start_time < duration * 1000:
+            self.delta_time = self.clock.tick() / 1000
+            
+            self.display_surface.fill('black')
+                    
+            self.all_sprites.update(self.delta_time)
+            self.camera.update(self.delta_time)
+            self.all_sprites.draw(self.camera.position)
+            
+            pygame.display.flip()
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    pygame.quit()
+                    return
+                
+    def test_agent_group(self, agent_type, count, duration):
+        self.surfaces_setup()
+        agent_classes = {
+            'utility_based': UtilityBased,
+            'bdi_agent': BDIAgent
+        }
+        
+        if agent_type not in agent_classes:
+            print(f"Agent type {agent_type} not supported for group tests.")
+            return
+
+        self.all_sprites.empty()
+        self.collision_sprites.empty()
+        self.objetives.empty()
+        self.setup()
+        
+        AgentClass = agent_classes[agent_type]
+        for _ in range(count):
+            random_offset = pygame.Vector2(randint(-100, 100), randint(-100, 100))
+            AgentClass(72, self.map_center + random_offset, self.surfaces[agent_type], 
+                    (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        
+        start_time = pygame.time.get_ticks()
+        while pygame.time.get_ticks() - start_time < duration * 1000:
+            self.delta_time = self.clock.tick() / 1000
+            
+            self.display_surface.fill('black')
+                    
+            self.all_sprites.update(self.delta_time)
+            self.camera.update(self.delta_time)
+            self.all_sprites.draw(self.camera.position)
+            
+            pygame.display.flip()
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    pygame.quit()
+                    return
+    
+    def run_individual_tests(self):
+        self.surfaces_setup()
+        
+        while self.running:
+            agent_types = ['state_based', 'simple_reactive', 'objective_based', 'utility_based', 'bdi_agent']
+            for agent_type in agent_types:
+                print(f"Testing agent type: {agent_type}")
+                self.test_agent(agent_type, 60)
+    
+    def run_group_tests(self):
+        agent_types = ['utility_based', 'bdi_agent']
+        for agent_type in agent_types:
+            print(f"Testing agent type: {agent_type}")
+            if agent_type in ['utility_based', 'bdi_agent']:
+                self.test_agent_group(agent_type, 3, 30)  # Test groups of 3 for 30 seconds
+            else:
+                self.test_agent(agent_type, 30) 
+                    
     def run(self):
         self.surfaces_setup()
         
@@ -113,9 +211,9 @@ class Game():
         UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
         UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
         UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
         
         while self.running:
             self.delta_time = self.clock.tick() / 1000

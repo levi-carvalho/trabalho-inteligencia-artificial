@@ -17,7 +17,7 @@ class UtilityBased(ObjectiveBased):
     def calc_next_target(self):
         if self.waiting and self.objective:
             print(self.waiting, "waitt", pygame.time.get_ticks(), self.rect.center)
-            print('objective = ', self.objective.groups())
+            print('objective = ', self.objective.groups(), self.objective.holder)
             
             found_colleague = False
             for colleague in self.colleagues:

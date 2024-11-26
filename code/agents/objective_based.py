@@ -2,7 +2,7 @@ from settings import *
 from agents.simple_reactive import SimpleReactive
 
 class ObjectiveBased(SimpleReactive):
-    def __init__(self, size, position, sprite_sheet, groups, collision_sprites, objectives):
+    def __init__(self, size, position, sprite_sheet, groups, collision_sprites, objectives, *args):
         super().__init__(size, position, sprite_sheet, groups, collision_sprites)
         self.objectives = objectives        
         self.objective_index = 0
