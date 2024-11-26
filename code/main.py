@@ -3,6 +3,7 @@ from agents.simple_reactive import SimpleReactive
 from agents.state_based import StateBased
 from agents.objective_based import ObjectiveBased
 from agents.utility_based import UtilityBased
+from agents.bdi_agent import BDIAgent
 from sprites import *
 from groups import AllSprites
 from resources import *
@@ -14,7 +15,7 @@ from pytmx.util_pygame import load_pygame
 class Base(pygame.sprite.Sprite):
     def __init__(self, position, groups):
         super().__init__(groups)
-        self.image = pygame.image.load(path.join('..','base.png'))
+        self.image = pygame.image.load(path.join('..','base.png')).convert_alpha()
         self.rect = self.image.get_rect(bottomright=position)
         print(self.rect)
         self.layer_order = 2
@@ -60,6 +61,14 @@ class Game():
         self.setup()
         
     
+    def place_random_resource(self, position):
+        if random() < 0.15:
+            Crystal(position, (self.all_sprites, self.collision_sprites, self.objetives))
+        elif random() < 0.15:
+            Metal(position, (self.all_sprites, self.collision_sprites, self.objetives))
+        elif random() < 0.1:
+            AncientBuilding(position, (self.all_sprites, self.collision_sprites, self.objetives))
+    
     def setup(self):
         self.map_center = pygame.Vector2(21 * TILE_SIZE // 2, 21 * TILE_SIZE // 2)
         self.base_position = self.map_center
@@ -72,15 +81,9 @@ class Game():
         for x, y, image in map.get_layer_by_name('layer_1').tiles():
             image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
             position = (x * TILE_SIZE, y * TILE_SIZE)
+            self.place_random_resource(position)
+            Sprite(position, image, self.all_sprites, layer=0)    
             
-            if random() < 0.1:
-                Crystal(position, (self.all_sprites, self.collision_sprites, self.objetives))
-            elif random() < 0.1:
-                Metal(position, (self.all_sprites, self.collision_sprites, self.objetives))
-            elif random() < 0.02:
-                AncientBuilding(position, (self.all_sprites, self.collision_sprites, self.objetives))
-            Sprite(position, image, self.all_sprites, layer=0)
-                
             
         for x, y, image in map.get_layer_by_name('layer_2').tiles():
             image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
@@ -109,6 +112,10 @@ class Game():
         
         UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
         UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
         
         while self.running:
             self.delta_time = self.clock.tick() / 1000
