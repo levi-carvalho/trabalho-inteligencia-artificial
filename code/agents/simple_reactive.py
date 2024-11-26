@@ -8,6 +8,7 @@ class SimpleReactive(Agent):
         super().__init__(size, position, sprite_sheet, groups, collision_sprites)
         
         self.last_position = self.rect.center
+        self.waiting = False
         # self.moving = True
         
         self.target = pygame.Vector2(self.rect.centerx, self.rect.centery) + pygame.Vector2(TILE_SIZE, 0)
@@ -29,8 +30,15 @@ class SimpleReactive(Agent):
         self.collission('horizontal')
         self.direction.y = 1 if self.target_rect.centery > self.hitbox_rect.centery else -1 if self.target_rect.centery < self.hitbox_rect.centery else 0
         self.collission('vertical')
-
+        
+        if self.waiting:
+            print("aquii")
+        
         if math.dist(self.hitbox_rect.center, self.target_rect.center) < 1:
+            if self.waiting:
+                print("aquii 22")
+                print("target", self.target_rect)
+        
             self.hitbox_rect.center = self.target_rect.center
             self.direction = pygame.Vector2(0, 0)
             self.set_new_target()
@@ -42,10 +50,12 @@ class SimpleReactive(Agent):
             self.direction.y = (self.base_pos.y > self.hitbox_rect.centery) - (self.base_pos.y < self.hitbox_rect.centery)
         
         if math.dist(self.hitbox_rect.center,self.base_pos) < 2:
-            self.returning = False
+            if self.resource:
+                self.resource.kill()
             self.busy = False
-            self.resource.kill()
             self.resource = None
+            self.waiting = False
+            self.returning = False
             self.direction = pygame.Vector2((0,0))
             self.last_position = self.base_pos
     
