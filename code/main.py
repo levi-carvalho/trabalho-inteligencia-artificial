@@ -81,12 +81,14 @@ class Game():
         
         map = load_pygame(path.join('..','map.tmx'))
         
+        fog_surface = pygame.Surface((0, TILE_SIZE), pygame.SRCALPHA)
+        
         for x, y, image in map.get_layer_by_name('layer_1').tiles():
             image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
             position = (x * TILE_SIZE, y * TILE_SIZE)
             # self.place_random_resource(position)
             Sprite(position, image, self.all_sprites, layer=0)    
-            
+            FogOfWar((x * TILE_SIZE, y * TILE_SIZE), fog_surface, (self.all_sprites, self.collision_sprites), layer=5)
             
         for x, y, image in map.get_layer_by_name('layer_2').tiles():
             image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
@@ -122,12 +124,12 @@ class Game():
         # BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
         
         while self.running:
-            self.delta_time = self.clock.tick() / 1000
+            self.delta_time = self.clock.tick(120) / 1000
             
             self.display_surface.fill('black')
                     
             self.all_sprites.update(self.delta_time)
-            self.collision_sprites.update(self.delta_time)
+            # self.collision_sprites.update(self.delta_time)
             
             self.camera.update(self.delta_time)
             self.all_sprites.draw(self.camera.position)
@@ -140,6 +142,24 @@ class Game():
                     pygame.quit()
 
 
+class FogOfWar(Sprite):
+    def __init__(self, position, surface, groups, layer):
+        super().__init__(position, surface, groups, layer)
+        fog_surface = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+        fog_surface.fill('black')
+        fog_surface.set_alpha(255)
+        self.image = fog_surface
+        self.disapearing = False
+        self.disapear_speed = 200
+    
+    def update(self, delta_time):
+        if self.disapearing:
+            alpha = self.image.get_alpha() - self.disapear_speed * delta_time
+            if alpha <= 0:
+                self.kill()
+                return
+            self.image.set_alpha(alpha)
+            
 if __name__ == '__main__':
     game = Game()
     game.run()
