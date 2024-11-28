@@ -81,7 +81,7 @@ class Game():
         
         map = load_pygame(path.join('..','map.tmx'))
         
-        fog_surface = pygame.Surface((0, TILE_SIZE), pygame.SRCALPHA)
+        fog_surface = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
         
         for x, y, image in map.get_layer_by_name('layer_1').tiles():
             image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
@@ -93,15 +93,13 @@ class Game():
         for x, y, image in map.get_layer_by_name('layer_2').tiles():
             image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
             Sprite((x * TILE_SIZE, y * TILE_SIZE), image, self.all_sprites, layer=1)
-
-    
+            
     def surfaces_setup(self):
         self.surfaces = {}
         self.surfaces['state_based'] = self.load_agent_sprite_sheet(1)
         self.surfaces['objective_based'] = self.load_agent_sprite_sheet(2)
         self.surfaces['simple_reactive'] = self.load_agent_sprite_sheet(3)
         self.surfaces['utility_based'] = self.load_agent_sprite_sheet(6)
-        self.surfaces['bdi_agent'] = self.load_agent_sprite_sheet(5)
     
     def load_agent_sprite_sheet(self, number):
         surface_path = path.join('..','dreamland','48x48',f'Char_00{number}.png')
