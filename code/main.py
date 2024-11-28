@@ -101,6 +101,7 @@ class Game():
         self.surfaces['objective_based'] = self.load_agent_sprite_sheet(2)
         self.surfaces['simple_reactive'] = self.load_agent_sprite_sheet(3)
         self.surfaces['utility_based'] = self.load_agent_sprite_sheet(6)
+        self.surfaces['bdi_agent'] = self.load_agent_sprite_sheet(5)
     
     def load_agent_sprite_sheet(self, number):
         surface_path = path.join('..','dreamland','48x48',f'Char_00{number}.png')
