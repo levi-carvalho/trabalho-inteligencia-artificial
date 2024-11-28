@@ -1,9 +1,10 @@
 from settings import *
-from agents.simple_reactive import SimpleReactive
-from agents.state_based import StateBased
-from agents.objective_based import ObjectiveBased
-from agents.utility_based import UtilityBased
-from agents.bdi_agent import BDIAgent
+from agents.agent import Agent
+# from agents.simple_reactive import SimpleReactive
+# from agents.state_based import StateBased
+# from agents.objective_based import ObjectiveBased
+# from agents.utility_based import UtilityBased
+# from agents.bdi_agent import BDIAgent
 from sprites import *
 from groups import AllSprites
 from resources import *
@@ -15,8 +16,10 @@ from pytmx.util_pygame import load_pygame
 class Base(pygame.sprite.Sprite):
     def __init__(self, position, groups):
         super().__init__(groups)
+        position -= pygame.Vector2((TILE_SIZE,TILE_SIZE))
         self.image = pygame.image.load(path.join('..','base.png')).convert_alpha()
-        self.rect = self.image.get_rect(bottomright=position)
+        self.rect = self.image.get_frect(topleft=position)
+        self.rect.center -= pygame.Vector2(((self.rect.width - TILE_SIZE)/2, (self.rect.height - TILE_SIZE)/2))
         print(self.rect)
         self.layer_order = 2
         
@@ -25,7 +28,7 @@ class Camera():
     def __init__(self, position):
         self.position = position
         self.direction = pygame.Vector2((0,0))
-        self.speed = 300
+        self.speed = 0
         
     def input(self):
         keys = pygame.key.get_pressed()
@@ -49,9 +52,9 @@ class Game():
         
         self.display_surface = pygame.display.get_surface()
        
+        # self.utility_agents = pygame.sprite.Group()
+        # self.objetives = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
-        self.utility_agents = pygame.sprite.Group()
-        self.objetives = pygame.sprite.Group()
         self.all_sprites = AllSprites()
        
         self.clock = pygame.time.Clock()
@@ -81,7 +84,7 @@ class Game():
         for x, y, image in map.get_layer_by_name('layer_1').tiles():
             image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
             position = (x * TILE_SIZE, y * TILE_SIZE)
-            self.place_random_resource(position)
+            # self.place_random_resource(position)
             Sprite(position, image, self.all_sprites, layer=0)    
             
             
@@ -106,16 +109,17 @@ class Game():
     def run(self):
         self.surfaces_setup()
         
-        StateBased(72, self.map_center, self.surfaces['state_based'], self.all_sprites, self.collision_sprites)
-        SimpleReactive(72, self.map_center, self.surfaces['simple_reactive'], self.all_sprites, self.collision_sprites)
-        ObjectiveBased(72, self.map_center, self.surfaces['objective_based'], self.all_sprites, self.collision_sprites, self.objetives)
+        Agent(72, self.map_center, self)
+        # StateBased(72, self.map_center, self.surfaces['state_based'], self.all_sprites, self.collision_sprites)
+        # SimpleReactive(72, self.map_center, self.surfaces['simple_reactive'], self.all_sprites, self.collision_sprites)
+        # ObjectiveBased(72, self.map_center, self.surfaces['objective_based'], self.all_sprites, self.collision_sprites, self.objetives)
         
-        UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
-        BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # UtilityBased(72, self.map_center, self.surfaces['utility_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
+        # BDIAgent(72, self.map_center, self.surfaces['objective_based'], (self.all_sprites, self.utility_agents), self.collision_sprites, self.objetives, self.utility_agents)
         
         while self.running:
             self.delta_time = self.clock.tick() / 1000

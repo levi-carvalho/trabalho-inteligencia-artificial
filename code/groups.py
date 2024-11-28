@@ -17,3 +17,4 @@ class AllSprites(pygame.sprite.Group):
 
         for sprite in sorted_sprites:
             self.display_surface.blit(sprite.image, sprite.rect.topleft + self.offset)
+            pygame.draw.rect(self.display_surface, 'white', pygame.Rect(sprite.rect.left + self.offset.x, sprite.rect.top + self.offset.y, sprite.rect.width, sprite.rect.height), 2)

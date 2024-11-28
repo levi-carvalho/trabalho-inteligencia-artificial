@@ -1,75 +1,112 @@
 from settings import *
 
 class Agent(pygame.sprite.Sprite):
-    def __init__(self, size, position, spritsheet, groups, collision_sprites, *agrs):
-        super().__init__(groups)
+    def __init__(self, size, position, game, *agrs):
+        super().__init__(game.all_sprites)
+        self.game = game
         self.size = size
-        self.base_pos = position - pygame.Vector2(32,32)
-        self.spritesheet = spritsheet
+        self.spritesheet = self.game.surfaces['state_based']
+        self.collision_sprites = game.collision_sprites
+        self.base_pos = position
         self.frames = {'down': [], 'left': [], 'right': [], 'up': []}
         
         self.load_images()
         self.image = self.frames['down'][0]
-        self.rect = self.image.get_frect(center = position)
-        self.hitbox_rect = self.rect
+        self.rect = self.image.get_frect(topleft = position)
+        self.direction = pygame.Vector2((0,0))
+        
+        self.hitbox = self.rect
         
         self.speed = 100
-        self.direction = pygame.Vector2((0,0))
         self.state, self.frame_index = 'down', 0
         
-        self.busy = False
-        self.returning = False
-        self.resource = None
-        
-        self.target = self.base_pos
-        self.collision_sprites = collision_sprites
         self.layer_order = 3
-        self.limit = 20
+        
+        self.moves = []
+        self.moving = False
+        self.moved = 0
         
     def input(self):
+        if pygame.mouse.get_pressed()[0]:
+            offset_x =  - self.game.camera.position[0] + WINDOW_WIDTH / 2
+            offset_y =  - self.game.camera.position[1] + WINDOW_HEIGHT / 2
+            offset = pygame.Vector2((offset_x, offset_y))
+            
+            mouse_position = pygame.Vector2(pygame.mouse.get_pos())
+            self_center = pygame.Vector2(self.rect.center)
+            
+            # print(mouse_position - offset, self_center)
+            distance = (mouse_position - offset - self_center) /TILE_SIZE
+            
+            print(round(distance[0]), round(distance[1]))
+            
+        if len(self.moves) > 0:
+            return
         keys = pygame.key.get_pressed()
         self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
         self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
+        
+        if self.direction.x > 0:
+            self.moves.append(pygame.Vector2(1,0))
+            self.moves.append(pygame.Vector2(-1,0))
+            self.moves.append(pygame.Vector2(0,1))
+            self.moves.append(pygame.Vector2(0,-1))
+            self.moves.append(pygame.Vector2(-1,0))
+            self.moves.append(pygame.Vector2(0,1))
+            self.moves.append(pygame.Vector2(0,-1))
+            self.moves.append(pygame.Vector2(-1,0))
+            self.moves.append(pygame.Vector2(0,1))
+            self.moves.append(pygame.Vector2(0,-1))
+            self.moves.append(pygame.Vector2(-1,0))
+            self.moves.append(pygame.Vector2(0,1))
+            self.moves.append(pygame.Vector2(0,-1))
+            self.moves.append(pygame.Vector2(-1,0))
+            self.moves.append(pygame.Vector2(0,1))
+            self.moves.append(pygame.Vector2(0,-1))
+        elif self.direction.x < 0:
+            self.moves.append(pygame.Vector2(-1,0))
+        elif self.direction.y > 0:
+            self.moves.append(pygame.Vector2(0,1))
+        elif self.direction.y < 0:
+            self.moves.append(pygame.Vector2(0,-1))
+            
         self.direction = self.direction.normalize() if self.direction else self.direction
         
     def move(self, delta_time):
-        self.hitbox_rect.x += self.direction.x * self.speed * delta_time
-        self.collission('horizontal')
-        self.hitbox_rect.y += self.direction.y * self.speed * delta_time
-        self.collission('vertical')
         
-        self.rect.center = self.hitbox_rect.center
+        if not self.moving:
+            if len(self.moves) > 0:
+                print(self.moves)
+                self.direction = self.moves[0]
+                self.moving = True
+        else:
+            self.hitbox.x += self.direction.x * self.speed * delta_time
+            self.collission('horizontal')
+            self.hitbox.y += self.direction.y * self.speed * delta_time
+            self.collission('vertical')
+            
+            self.moved += self.speed * delta_time
+            
+            if self.moved >= 64:
+                self.moves.remove(self.moves[0])
+                self.moving = False
+                self.moved = 0
+        
+        self.rect.center = self.hitbox.center
     
-    def set_returning(self, sprite, agent):
-        if sprite.holders > 1:
-            self.waiting = False
-            self.objective = None
-            return
-        sprite.holders += 1
-        sprite.holders_list.append(agent)
-        sprite.holder = self
-        agent.busy = True
-        agent.returning = True
-        agent.resource = sprite
-        agent.target = self.base_pos
-        agent.target_rect.center = self.base_pos
-        
-    def carry(self, sprite): #nome deveria ser deliver, parece que s´o executa quando chega na base
-        if not self.busy and not sprite.holder and sprite:
-            self.set_returning(sprite, self)    
     def collission(self, direction):
         for sprite in self.collision_sprites:
-            if sprite.rect.colliderect(self.hitbox_rect) and sprite.value <= self.limit:
-                self.carry(sprite)
+            if sprite.rect.colliderect(self.hitbox) and sprite.value <= self.limit:
+                # self.carry(sprite)
+                pass
                         
-        self.rect.center = self.hitbox_rect.center
+        self.rect.center = self.hitbox.center
                     
                         
         pass
     
     def update(self, delta_time):
-        # self
-        # .input()
+        self.input()
         self.move(delta_time)
         self.animate(delta_time)
     
