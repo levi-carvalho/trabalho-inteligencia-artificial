@@ -26,6 +26,11 @@ class Agent(pygame.sprite.Sprite):
         self.moving = False
         self.moved = 0
         
+        self.perception = pygame.Rect(0,0,3*TILE_SIZE, 3*TILE_SIZE)
+        self.perception = self.perception.scale_by(0.9)
+        self.perception.center = self.rect.center
+        # perception_size talvez
+
     def input(self):
         if pygame.mouse.get_pressed()[0]:
             offset_x =  - self.game.camera.position[0] + WINDOW_WIDTH / 2
@@ -48,21 +53,6 @@ class Agent(pygame.sprite.Sprite):
         
         if self.direction.x > 0:
             self.moves.append(pygame.Vector2(1,0))
-            self.moves.append(pygame.Vector2(-1,0))
-            self.moves.append(pygame.Vector2(0,1))
-            self.moves.append(pygame.Vector2(0,-1))
-            self.moves.append(pygame.Vector2(-1,0))
-            self.moves.append(pygame.Vector2(0,1))
-            self.moves.append(pygame.Vector2(0,-1))
-            self.moves.append(pygame.Vector2(-1,0))
-            self.moves.append(pygame.Vector2(0,1))
-            self.moves.append(pygame.Vector2(0,-1))
-            self.moves.append(pygame.Vector2(-1,0))
-            self.moves.append(pygame.Vector2(0,1))
-            self.moves.append(pygame.Vector2(0,-1))
-            self.moves.append(pygame.Vector2(-1,0))
-            self.moves.append(pygame.Vector2(0,1))
-            self.moves.append(pygame.Vector2(0,-1))
         elif self.direction.x < 0:
             self.moves.append(pygame.Vector2(-1,0))
         elif self.direction.y > 0:
@@ -81,9 +71,8 @@ class Agent(pygame.sprite.Sprite):
                 self.moving = True
         else:
             self.hitbox.x += self.direction.x * self.speed * delta_time
-            self.collission('horizontal')
             self.hitbox.y += self.direction.y * self.speed * delta_time
-            self.collission('vertical')
+            # self.collission('vertical')
             
             self.moved += self.speed * delta_time
             
@@ -92,15 +81,14 @@ class Agent(pygame.sprite.Sprite):
                 self.moving = False
                 self.moved = 0
         
+        self.collission('horizontal')
         self.rect.center = self.hitbox.center
+        self.perception.center = self.rect.center
     
     def collission(self, direction):
         for sprite in self.collision_sprites:
-            if sprite.rect.colliderect(self.hitbox) and sprite.value <= self.limit:
-                # self.carry(sprite)
-                pass
-                        
-        self.rect.center = self.hitbox.center
+            if sprite.rect.colliderect(self.perception): ## diferenciar de recurso depois
+                sprite.disapearing = True
                     
                         
         pass
@@ -111,7 +99,7 @@ class Agent(pygame.sprite.Sprite):
         self.animate(delta_time)
     
     def load_images(self):
-        
+        self.display_surface = pygame.display.get_surface()
         sheet_width, sheet_height = self.spritesheet.get_size()
         frames_per_row = sheet_width // self.size
 
