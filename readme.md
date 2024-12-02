@@ -1,6 +1,6 @@
 # Atividade avaliativa inteligência artificial
 
-atividade para a primeira nota da disciplina de inteligência artificial 2024.1, ciência computação UFMA
+atividade para a primeira nota da disciplina de inteligência artificial 2024.2, ciência computação UFMA
 
 instalar requisitos:
 ```

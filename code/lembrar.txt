@@ -1,0 +1,15 @@
+- teminar alógica dos bichos trazerem o bagulho junto
+
+- mudar a direção inicial pra aleatória
+
+- bota o cooldown no resource
+
+- entra em loop em define resources pq fica encontrando as estrutuas, limpa a lista, encontra  aestatua, limpa a lista, etc, verificar a estatua no loop de sprites
+
+- colocar os do cooldown em uma lista de espera que vai ser colocada na lista de found assim que qo tempo acabar --- ou só filtrar o len que leva pro define target
+
+- pegar os found do colega e botar o acabado de encontra no dele ((-o-)) -> Gẽniaaaaaaaaaaaalllllll
+
+- fazer  o cooldown inversamente proporcional a velocidade (dos agentes)
+
+- nos cooperativos, falta dar a pontuação pros dois agentes q carregaram o de 50, além de fazer o bdi passar informação pros outros agentes
