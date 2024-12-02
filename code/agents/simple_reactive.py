@@ -4,69 +4,85 @@ import math
 import random
 
 class SimpleReactive(Agent):
-    def __init__(self, size, position, sprite_sheet, groups, collision_sprites):
-        super().__init__(size, position, sprite_sheet, groups, collision_sprites)
-        
-        self.last_position = self.rect.center
-        self.waiting = False
-        # self.moving = True
-        
-        self.target = pygame.Vector2(self.rect.centerx, self.rect.centery) + pygame.Vector2(TILE_SIZE, 0)
-        self.target_surf = pygame.Surface((TILE_SIZE,TILE_SIZE))
-        self.target_rect = self.target_surf.get_frect(center = self.target)
+    def __init__(self, size, position, spritesheet,game):
+        super().__init__(size, position, spritesheet, game)
+        self.returning = False
+        self.waiting = False        
         self.directions = [
-            pygame.Vector2(TILE_SIZE, 0),
-            pygame.Vector2(-TILE_SIZE, 0),
-            pygame.Vector2(0, TILE_SIZE),
-            pygame.Vector2(0, -TILE_SIZE)
+            pygame.Vector2(1, 0),
+            pygame.Vector2(-1, 0),
+            pygame.Vector2(0, 1),
+            pygame.Vector2(0, -1)
         ]
-    
-    def set_new_target(self):
-        new_direction = random.choice(self.directions)
-        self.target_rect = self.hitbox_rect.move(new_direction.x, new_direction.y)
+        
+        self.resource = None
     
     def fuck_around(self):
-        self.direction.x = 1 if self.target_rect.centerx > self.hitbox_rect.centerx else -1 if self.target_rect.centerx < self.hitbox_rect.centerx else 0
-        self.collission('horizontal')
-        self.direction.y = 1 if self.target_rect.centery > self.hitbox_rect.centery else -1 if self.target_rect.centery < self.hitbox_rect.centery else 0
-        self.collission('vertical')
-
-        if math.dist(self.hitbox_rect.center, self.target_rect.center) < 1:
-            self.hitbox_rect.center = self.target_rect.center
-            self.direction = pygame.Vector2(0, 0)
-            self.set_new_target()
-            
-    def return_to_base(self):
-        if abs(self.base_pos.x - self.hitbox_rect.centerx) >= 1:
-            self.direction.x = (self.base_pos.x > self.hitbox_rect.centerx) - (self.base_pos.x < self.hitbox_rect.centerx)
-        elif abs(self.base_pos.y - self.hitbox_rect.centery) >= 1:
-            self.direction.y = (self.base_pos.y > self.hitbox_rect.centery) - (self.base_pos.y < self.hitbox_rect.centery)
+        curr_x = round(self.rect.center[0]/TILE_SIZE)
+        curr_y = round(self.rect.center[1]/TILE_SIZE)
+        curr_pos = pygame.Vector2((curr_x, curr_y))
         
-        if math.dist(self.hitbox_rect.center,self.base_pos) < 2:
-            if self.resource:
-                self.resource.kill()
-            self.busy = False
-            self.resource = None
-            self.waiting = False
-            self.returning = False
-            self.direction = pygame.Vector2((0,0))
-            self.last_position = self.base_pos
+        next_move = rd.choice(self.directions)
+        next_position = curr_pos + next_move
+        
+        if next_position.x > (self.game.map_size - 1) or \
+            next_position.y > (self.game.map_size - 1) or \
+            next_position.x < 0 or \
+            next_position.y < 0:
+            return
+        elif not self.game.matrix[int(next_position.y)][int(next_position.x)] == 0:
+            self.moves.append(next_move)
     
-    def define_direction(self):
-        self.target_surf.fill('pink')
-        pygame.display.get_surface().blit(self.target_surf, self.target_rect)
-        
-        self.direction.x = 0
-        self.direction.y = 0
-        
-        if not self.returning:
-            self.fuck_around()
-        else:
-            self.return_to_base()
-                
-    def move(self, delta_time):
-        self.define_direction()
-        self.hitbox_rect.x += self.direction.x * self.speed * delta_time
-        self.hitbox_rect.y += self.direction.y * self.speed * delta_time
+    def define_resources_priority(self):
+        self.found_resources = [resource for resource in self.found_resources if resource.value <= self.limit]
+        return
+    
+    def take_resource(self):
+        if self.found_resources[0].holder:
+            self.found_resources.remove(self.found_resources[0])
+            self.busy = False
+            return
+        self.define_path_to(self.game.base.m_position)
+        self.returning = True
+        self.resource.holder = self
+    
+    def define_target(self):
+        if self.busy and not self.returning:
+            self.take_resource()
+        elif self.returning:
+            self.found_resources.remove(self.resource)
+            self.points += self.resource.value
+            self.returning = False
+            self.busy = False
+            self.resource.kill()
             
-        self.rect.center = self.hitbox_rect.center
+        else:
+            self.define_resources_priority()
+            if len (self.found_resources) == 0: return
+            if self.found_resources[0].holder:
+                self.found_resources.remove(self.found_resources[0])
+                return
+            
+            self.resource = self.found_resources[0]
+            resource_position = self.resource.m_position
+            self.define_path_to(resource_position)
+            self.going_to_resource = True
+            self.busy = True
+            # print("definiu")
+                
+        # elif self.resource:
+        #     print('k', pygame.time.get_ticks())
+        #     agent_position = (int(self.rect.centerx/TILE_SIZE), int(self.rect.centery/TILE_SIZE))
+        #     resource_position = (int(self.resource.rect.centerx/TILE_SIZE), int(self.resource.rect.centery/TILE_SIZE))
+            
+        #     if math.dist(agent_position, resource_position) < 2:
+        #         base_pos = (int(self.game.base.rect.center[0]/TILE_SIZE), int(self.game.base.rect.center[1]/TILE_SIZE))
+        #         self.define_path_to(base_pos)
+        #         self.found_resources.remove(self.resource)
+        #         self.resource.holder = self
+        #         print('to base', pygame.time.get_ticks())
+        #         self.resource.kill()
+    # def on_reach_target(self):
+    #     if self.resource:
+    #         print(self.resource.rect.center, self.rect.center)
+    #         print("aau")
