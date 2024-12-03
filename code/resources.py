@@ -30,6 +30,12 @@ class Resource(CollisionSprite):
                 return
             
             self.rect.midbottom = self.holder.rect.midtop
+    
+    def kill(self) -> None:
+        for holder in self.holders_list:
+            holder.points += self.value
+            
+        return super().kill()
 
 class Crystal(Resource):
     def __init__(self, position, groups):
