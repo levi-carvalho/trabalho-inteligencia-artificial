@@ -52,7 +52,6 @@ class SimpleReactive(Agent):
             self.take_resource()
         elif self.returning:
             self.found_resources.remove(self.resource)
-            self.points += self.resource.value
             self.returning = False
             self.busy = False
             self.resource.kill()
