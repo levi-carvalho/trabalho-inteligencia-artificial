@@ -4,7 +4,7 @@ atividade para a primeira nota da disciplina de inteligência artificial 2024.2,
 
 instalar requisitos:
 ```
-pip install pygame-ce pytmx numpy
+pip install pygame-ce pytmx numpy pathfinding
 ```
 
 na pasta ./code rodar:
