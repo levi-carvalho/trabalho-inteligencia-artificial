@@ -17,7 +17,7 @@ class Agent(pygame.sprite.Sprite):
         self.state, self.frame_index = 'down', 0
         self.rect = self.image.get_frect(topleft = position)
         self.direction = pygame.Vector2((0,0))
-        self.speed = 400
+        self.speed = self.game.agent_speed
         self.points = 0
         
         self.hitbox = self.rect
