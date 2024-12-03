@@ -19,6 +19,16 @@ class Resource(CollisionSprite):
         self.m_position = (m_pos_x, m_pos_y)
         
         if self.holder:
+            holder_1 = self.holders_list[0].rect.midtop
+            holder_2 = self.holders_list[0].rect.midtop
+            midbottom = self.holder.rect.midtop
+            
+            if len(self.holders_list) > 1:
+                holder_2 = self.holders_list[1].rect.midtop
+                midbottom = (pygame.Vector2(holder_1[0], holder_1[1]) + pygame.Vector2(holder_2[0], holder_2[1]))/2
+                self.rect.midbottom = (midbottom.x, midbottom.y)
+                return
+            
             self.rect.midbottom = self.holder.rect.midtop
 
 class Crystal(Resource):
