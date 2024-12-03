@@ -49,12 +49,23 @@ class UtilityBased(ObjectiveBased):
                             if colleague.m_position == self.m_position:
                                     
                                 self.define_path_to(self.game.base.m_position)
+                                resource.holders_list.append(self)
                                 self.returning = True
                                 resource.holder = self
-
-                                colleague.define_path_to(self.game.base.m_position)
+                                
+                                colleague.moves = []
+                                colleague.moves.append(pygame.Vector2(0,0))
+                                
+                                for move in  self.moves:
+                                    colleague.moves.append(pygame.Vector2(move.x, move.y))
+                                print(colleague.moves)
+                                # colleague.moves.insert(0, pygame.Vector2(0,0))
+                                # colleague.moves.insert(0, pygame.Vector2(0,0))
+                                # colleague.moves.insert(0, pygame.Vector2(0,0))
+                                # colleague.moves.insert(0, pygame.Vector2(0,0))
+                                resource.holders_list.append(colleague)
                                 colleague.returning = True
-                                colleague.resource.holder = self
+                                resource.holder = self
                                 break
                             
                 if not found_colleague:
