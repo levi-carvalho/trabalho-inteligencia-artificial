@@ -48,11 +48,12 @@ class Camera():
         self.move(delta_time)
 
 class Game():
-    def __init__(self):
+    def __init__(self, speed, time):
         pygame.init()
         pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption("Ablu bla blé")
         
+        self.time = time
         self.display_surface = pygame.display.get_surface()
        
         self.utility_agents = pygame.sprite.Group()
@@ -66,7 +67,7 @@ class Game():
         self.clock = pygame.time.Clock()
         self.running = True
         self.create_agent = pygame.event.custom_type()
-        self.agent_speed = 100
+        self.agent_speed = speed
         
         self.map_size = 21
         
@@ -78,7 +79,7 @@ class Game():
         
         if int(keys[pygame.K_w]):
             self.agent_speed += 100
-        elif int(keys[pygame.K_s]) and self.agent_speed >= 100:
+        elif int(keys[pygame.K_s]) and self.agent_speed >= 200:
             self.agent_speed -= 100
     
     def place_random_resource(self, position):
@@ -87,11 +88,11 @@ class Game():
         if distance < 4:
             return
         elif random() < 0.1:
-            Crystal(position, (self.all_sprites, self.resources, self.collision_sprites))
+            Crystal(position, (self.all_sprites, self.resources, self.collision_sprites), self)
         elif random() < 0.1:
-            Metal(position, (self.all_sprites, self.resources, self.collision_sprites))
+            Metal(position, (self.all_sprites, self.resources, self.collision_sprites), self)
         elif random() < 0.1:
-            AncientBuilding(position, (self.all_sprites, self.resources, self.collision_sprites))
+            AncientBuilding(position, (self.all_sprites, self.resources, self.collision_sprites), self)
     
     def setup(self):
         self.map_center = pygame.Vector2(21 * TILE_SIZE // 2, 21 * TILE_SIZE // 2)
@@ -124,6 +125,7 @@ class Game():
         for x, y, image in map.get_layer_by_name('layer_2').tiles():
             image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
             Sprite((x * TILE_SIZE, y * TILE_SIZE), image, self.all_sprites, layer=1)
+        self.surfaces_setup()
             
     def surfaces_setup(self):
         self.surfaces = {}
@@ -140,17 +142,8 @@ class Game():
         return surface
     
     def run(self):
-        self.surfaces_setup()
         
-        SimpleReactive(72, self.map_center, self.surfaces['state_based'], self)
-        StateBased(72, self.map_center, self.surfaces['simple_reactive'], self)
-        ObjectiveBased(72, self.map_center, self.surfaces['objective_based'], self)
-        
-        UtilityBased(72, self.map_center, self.surfaces['utility_based'], self.utility_agents, self)
-        
-        BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], self.utility_agents, self)
-        
-        while self.running:
+        while pygame.time.get_ticks()/1000 < self.time:
             self.delta_time = self.clock.tick() / 1000
             
             self.speed_control()
@@ -168,7 +161,38 @@ class Game():
                     self.running = False
                     pygame.quit()
 
-            
-if __name__ == '__main__':
-    game = Game()
+def CommomAgent(AgentClass, name, game):
+    return AgentClass(72, game.map_center, game.surfaces[name], game)
+
+def CooperativeAgent(AgentClass, name, game):
+    return AgentClass(72, game.map_center, game.surfaces[name], game)
+
+def teste(time, speed, commom_agents, cooperative_agents):
+    game = Game(speed=speed, time=time)
+    agents = []
+    for Agent, name in commom_agents:
+        agents.append([CommomAgent(Agent, name, game), name])
+    for Agent, name in cooperative_agents:
+        agents.append([CooperativeAgent(Agent, name, game), name])
+    
     game.run()
+    
+    for agent, name in agents:
+        print(agent.points, name)
+        
+    
+if __name__ == '__main__':
+    
+    teste_1 = teste(
+        time = 10,
+        speed = 500,
+        commom_agents=[
+            [SimpleReactive, 'simple_reactive'],
+            [StateBased, 'state_based'],
+            [ObjectiveBased, 'objective_based'],
+         ],
+        cooperative_agents=[
+            [UtilityBased, 'utility_based'],
+            [BDIAgent, 'bdi_agent']
+        ],
+    )
