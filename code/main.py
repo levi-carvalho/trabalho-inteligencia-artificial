@@ -66,11 +66,20 @@ class Game():
         self.clock = pygame.time.Clock()
         self.running = True
         self.create_agent = pygame.event.custom_type()
+        self.agent_speed = 100
         
         self.map_size = 21
         
         self.setup()
         
+    
+    def speed_control(self):
+        keys = pygame.key.get_just_pressed()
+        
+        if int(keys[pygame.K_w]):
+            self.agent_speed += 100
+        elif int(keys[pygame.K_s]) and self.agent_speed >= 100:
+            self.agent_speed -= 100
     
     def place_random_resource(self, position):
         center = (self.map_size // 2, self.map_size // 2)
@@ -133,22 +142,18 @@ class Game():
     def run(self):
         self.surfaces_setup()
         
-        # Agent(72, self.map_center, self)
         SimpleReactive(72, self.map_center, self.surfaces['state_based'], self)
         StateBased(72, self.map_center, self.surfaces['simple_reactive'], self)
         ObjectiveBased(72, self.map_center, self.surfaces['objective_based'], self)
         
-        # UtilityBased(72, self.map_center, self.surfaces['utility_based'], self.utility_agents, self)
-        # UtilityBased(72, self.map_center, self.surfaces['utility_based'], self.utility_agents, self)
         UtilityBased(72, self.map_center, self.surfaces['utility_based'], self.utility_agents, self)
         
         BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], self.utility_agents, self)
-        # BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], self.utility_agents, self)
-        # BDIAgent(72, self.map_center, self.surfaces['bdi_agent'], self.utility_agents, self)
         
         while self.running:
             self.delta_time = self.clock.tick() / 1000
             
+            self.speed_control()
             self.display_surface.fill('black')
                     
             self.all_sprites.update(self.delta_time)

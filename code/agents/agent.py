@@ -127,22 +127,14 @@ class Agent(pygame.sprite.Sprite):
                         
         pass
     
-    def speed_control(self):
-        keys = pygame.key.get_just_pressed()
-        
-        if int(keys[pygame.K_w]):
-            self.speed += 100
-        elif int(keys[pygame.K_s]):
-            self.speed -= 100
         
     def update(self, delta_time):
-        # self.fuck_around()
         m_pos_x = int(self.rect.topright[0]/TILE_SIZE)
         m_pos_y = int(self.rect.bottomright[1]/TILE_SIZE)
         self.m_position = (m_pos_x, m_pos_y)
         self.move(delta_time)
         self.animate(delta_time)
-        self.speed_control()
+        self.speed = self.game.agent_speed
         # self.game.camera.position = pygame.Vector2((self.rect.center))
     
     def load_images(self):
