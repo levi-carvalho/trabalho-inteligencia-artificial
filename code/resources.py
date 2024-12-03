@@ -3,15 +3,16 @@ from sprites import CollisionSprite
 
 
 class Resource(CollisionSprite):
-    def __init__(self, position, surface, groups):
+    def __init__(self, position, surface, groups, game):
         super().__init__(position, surface, groups)
         self.holders = 0
         self.holder = None
         self.holders_list = []
         self.cooldown_duration = 9000
         self.last_tried = -30000
+        self.game = game
     
-    def update(self, delta_time, *args):
+    def update(self, delta_time,*args):
         self.animate(delta_time)
         
         m_pos_x = int(self.rect.centerx/TILE_SIZE)
@@ -30,6 +31,7 @@ class Resource(CollisionSprite):
                 return
             
             self.rect.midbottom = self.holder.rect.midtop
+            self.cooldown_duration = 5000/(self.game.agent_speed/100)
     
     def kill(self) -> None:
         for holder in self.holders_list:
@@ -38,11 +40,11 @@ class Resource(CollisionSprite):
         return super().kill()
 
 class Crystal(Resource):
-    def __init__(self, position, groups):
+    def __init__(self, position, groups, game):
         
         surface = pygame.Surface((64, 64))
         
-        super().__init__(position, surface, groups)
+        super().__init__(position, surface, groups, game)
         
         self.position = position
         self.value = 10
@@ -70,8 +72,8 @@ class Crystal(Resource):
         
 
 class Metal(Crystal):
-    def __init__(self, position, groups):
-        super().__init__(position, groups)
+    def __init__(self, position, groups, game):
+        super().__init__(position, groups, game)
         self.value = 20
     
     def load_images(self):
@@ -84,8 +86,8 @@ class Metal(Crystal):
         pass
     
 class AncientBuilding(Metal):
-    def __init__(self, position, groups):
-        super().__init__(position, groups)
+    def __init__(self, position, groups, game):
+        super().__init__(position, groups, game)
         self.value = 50
         
     def load_images(self):
