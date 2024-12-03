@@ -2,8 +2,8 @@ from settings import *
 from agents.utility_based import UtilityBased
 
 class BDIAgent(UtilityBased):
-    def __init__(self, size, position, sprite_sheet, utility_agents, game):
-        super().__init__(size, position, sprite_sheet, utility_agents, game)
+    def __init__(self, size, position, sprite_sheet, game):
+        super().__init__(size, position, sprite_sheet, game)
     
     def define_resources_priority(self):
         current_time = pygame.time.get_ticks()
