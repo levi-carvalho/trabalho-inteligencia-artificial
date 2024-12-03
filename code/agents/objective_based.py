@@ -4,7 +4,6 @@ from agents.state_based import StateBased
 class ObjectiveBased(StateBased):
     def __init__(self, size, position, spritesheet, game):
         super().__init__(size, position, spritesheet, game)
-        self.set_perception(1)
         
     def calculate_moves(self, start, end):
         grid = Grid(matrix=self.game.matrix)
