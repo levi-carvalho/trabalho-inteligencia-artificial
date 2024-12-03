@@ -80,5 +80,6 @@ class UtilityBased(ObjectiveBased):
             print('pegou')
             self.define_path_to(self.game.base.m_position)
             self.returning = True
+            self.resource.holders_list.append(self)
             resource.holder = self
             return

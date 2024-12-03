@@ -44,6 +44,7 @@ class SimpleReactive(Agent):
             return
         self.define_path_to(self.game.base.m_position)
         self.returning = True
+        self.resource.holders_list.append(self)
         self.resource.holder = self
     
     def define_target(self):
